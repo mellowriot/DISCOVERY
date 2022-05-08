@@ -140,7 +140,7 @@ typedef struct
 
 
 
-}SPI_STATE;
+}SPI_STATUS;
 
 typedef struct
 {
@@ -175,7 +175,9 @@ typedef struct
 	//__IO uint32_t              ErrorCode;      /*!< SPI Error code                           */
 
 }SPI_HANDLE;
+//******************************************
 
+//               SPI_INIT
 
 //*****************************************************************
 
@@ -186,6 +188,8 @@ Bit 15 BIDIMODE: Bidirectional data mode enable
 Note: This bit is not used in I2S mode
 */
 #define Bidirectional_data_mode_enable;//
+#define MODE_2LINE;
+#define MODE_1LIDE;
 
 
 
@@ -198,6 +202,8 @@ Note: This bit is not used in I2S mode.
 In master mode, the MOSI pin is used while the MISO pin is used in slave mode.
 */
 #define Output_enable_in_bidirectional_mode;//
+#define Rx_ONLY;
+#define Tx_ONLY;
 
 
 
@@ -224,9 +230,11 @@ This bit should be kept cleared when the transfers are managed by DMA.
 It is not used in I2S mode.
 */
 #define CRC_transfer_next;//
-
-
-
+#define CRCNEXT_CHECK_I2S;
+#define CRCNEXT_CHECK_DMA;
+#define IS_SPI_Rx_ONLY;
+#define IS_SPI_FD_Tx_ONLY;
+#define CHECK_DATA_IN_DATA_REG;
 /*
 Bit 11 DFF: Data frame format
 0: 8-bit data frame format is selected for transmission/reception
@@ -235,7 +243,8 @@ Note: This bit should be written only when SPI is disabled (SPE = ‘0’) for c
 It is not used in I2S mode
 */
 #define Data_frame_format;//
-
+#define DDF_8BIT;
+#define DDF_16BIT:
 
 
 /*
@@ -248,8 +257,8 @@ slave is not accessed, the output from the accessed slave is not corrupted.
 Note: This bit is not used in I2S mode
 */
 #define Receive_only;//
-#define FULL_DUPLEX_ENBALE
-#define HALF_DUPLEDX_ENABLE
+#define FULL_DUPLEX_ENBALE;
+#define HALF_DUPLEDX_ENABLE;
 
 
 /*
@@ -260,8 +269,8 @@ When the SSM bit is set, the NSS pin input is replaced with the value from the S
 Note: This bit is not used in I2S mode and SPI TI mode
 */
 #define Software_slave_management;//
-#define SSM_ENABLE
-#define SSM_DISABLE
+#define SSM_ENABLE;
+#define SSM_DISABLE;
 
 
 
@@ -273,7 +282,7 @@ Note: This bit is not used in I2S mode and SPI TI mode
 */
 #define Internal_slave_select;//
 #define CHECK_IF_SSM_ENABLED;
-#define INTERNAL_SLAVE_SELECT_ENABLE
+#define INTERNAL_SLAVE_SELECT_ENABLE;
 
 
 /*
@@ -284,8 +293,8 @@ Note: This bit should not be changed when communication is ongoing.
 It is not used in I2S mode and SPI TI mode
 */
 #define Frame_format;//
-#define BIG_ENDIAN_ENABLE
-#define LITTLE_ENDIAN_ENABLE
+#define BIG_ENDIAN_ENABLE;
+#define LITTLE_ENDIAN_ENABLE;
 
 
 
@@ -297,8 +306,8 @@ Note: This bit is not used in I2S mode.
 When disabling the SPI, follow the procedure described in Section 28.3.8.
 */
 #define SPI_enable;//
-#define SPI_PERIPHERAL_ENABLE
-#define SPI_PERIPHERAL_DISABLE
+#define SPI_PERIPHERAL_ENABLE;
+#define SPI_PERIPHERAL_DISABLE;
 
 
 
@@ -316,14 +325,14 @@ Note: These bits should not be changed when communication is ongoing.
 They are not used in I2S mode.
 */
 #define Baud_rate_control;//
-#define BAUD_DEVIDE_BY_2
-#define BAUD_DEVIDE_BY_4
-#define BAUD_DEVIDE_BY_8
-#define BAUD_DEVIDE_BY_16
-#define BAUD_DEVIDE_BY_32
-#define BAUD_DEVIDE_BY_64
-#define BAUD_DEVIDE_BY_128
-#define BAUD_DEVIDE_BY_256
+#define BAUD_DEVIDE_BY_2;
+#define BAUD_DEVIDE_BY_4;
+#define BAUD_DEVIDE_BY_8;
+#define BAUD_DEVIDE_BY_16;
+#define BAUD_DEVIDE_BY_32;
+#define BAUD_DEVIDE_BY_64;
+#define BAUD_DEVIDE_BY_128;
+#define BAUD_DEVIDE_BY_256;
 
 
 /*
@@ -387,16 +396,99 @@ used for transmission/reception.
 
 
 
+//******************************************
+
+//               SPI_STATUS
+
+//*****************************************************************
+
+/*
+Bits 15:9 Reserved. Forced to 0 by hardware.
+*/
+
+
+/*
+Bit 8 FRE: Frame format error
+0: No frame format error
+1: A frame format error occurred
+This flag is set by hardware and cleared by software when the SPIx_SR register is read.
+Note: This flag is used when the SPI operates in TI slave mode or I2S slave mode (refer to
+Section 28.3.10).
+*/
+
+
+/*
+Bit 7 BSY: Busy flag
+0: SPI (or I2S) not busy
+1: SPI (or I2S) is busy in communication or Tx buffer is not empty
+This flag is set and cleared by hardware.
+Note: BSY flag must be used with caution: refer to Section 28.3.7 and Section 28.3.8.
+*/
+
+
+/*
+Bit 6 OVR: Overrun flag
+0: No overrun occurred
+1: Overrun occurred
+This flag is set by hardware and reset by a software sequence. Refer to Section 28.4.8:
+Error flags for the software sequence.
+*/
+
+
+/*
+Bit 5 MODF: Mode fault
+0: No mode fault occurred
+1: Mode fault occurred
+This flag is set by hardware and reset by a software sequence. Refer to Section 28.4.8:
+Error flags for the software sequence.
+Note: This bit is not used in I2S mode
+*/
+
+
+/*
+Bit 4 CRCERR: CRC error flag
+0: CRC value received matches the SPI_RXCRCR value
+1: CRC value received does not match the SPI_RXCRCR value
+This flag is set by hardware and cleared by software writing 0.
+Note: This bit is not used in I2S mode.
+*/
+
+
+/*
+Bit 3 UDR: Underrun flag
+0: No underrun occurred
+1: Underrun occurred
+This flag is set by hardware and reset by a software sequence. Refer to Section 28.4.8:
+Error flags for the software sequence.
+Note: This bit is not used in SPI mode.
+*/
+
+
+/*
+Bit 2 CHSIDE: Channel side
+0: Channel Left has to be transmitted or has been received
+1: Channel Right has to be transmitted or has been received
+Note: This bit is not used for SPI mode and is meaningless in PCM mode.
+*/
+
+
+/*
+Bit 1 TXE: Transmit buffer empty
+0: Tx buffer not empty
+1: Tx buffer empty
+*/
+
+
+/*
+Bit 0 RXNE: Receive buffer not empty
+0: Rx buffer empty
+1: Rx buffer not empty
+*/
 
 
 
 
 
-
-
-
-
-//**************************************************************
 
 #define TI_frame_format_error;//
 
@@ -418,6 +510,11 @@ used for transmission/reception.
 
 
 //**************************************************************
+//******************************************
+
+//               SPI_HANDLE
+
+//*****************************************************************
 
 
 
